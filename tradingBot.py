@@ -14,31 +14,31 @@ class Position:
 
         return profit
 
-class LastFour:
-    #num is number of candles (should be 4 after the first 4 are added)
+class CandleHeap:
+    #num is number of candles you want to take into account
+    #numCandles is the amount of candles to take into account
     #max is a list of the latest 4 maxs
     #min is a list of the latest 4 mins
-    def __init__(self):
+    def __init__(self, numCandles):
         self.num = 0
         self.max = []
         self.min = []
+        self.numCandles = numCandles
 
     def add(self, min, max):
-        if not self.num == 4:
+        if not self.num == self.numCandles:
             self.max.append(max)
             self.min.append(min)
             self.num += 1
         else:
-            'ripple them down'
-            'then add it to the end'
-            self.max[0] = self.max[1]
-            self.min[0] = self.min[1]
-            self.max[1] = self.max[2]
-            self.min[1] = self.min[2]
-            self.max[2] = self.max[3]
-            self.min[2] = self.min[3]
-            self.max[3] = max
-            self.min[3] = min
+            #ripple them down'
+            #then add it to the end'
+            for i in range(0, self.numCandles-1):
+                self.max[i] = self.max[i+1]
+                self.min[i] = self.min[i+1]
+
+            self.max[self.numCandles-1] = max
+            self.min[self.numCandles-1] = min
 
     def getMax(self):
         return max(self.max)
@@ -52,25 +52,25 @@ class LastFour:
 class Tbot:
     #initalise these variables
     #float max[] - last 4
-    def __init__(self):
-        self.lastFour = LastFour()
+    def __init__(self, num):
+        self.candleHeap = CandleHeap(num)
         self.bos = ""
         self.amount = 10000
         self.pos = Position("Buy", 100, 0)
 
     def update(self, min, max):
-        if self.lastFour.getNum() == 4:
+        if self.candleHeap.getNum() == self.candleHeap.numCandles:
             if self.pos.bos == "Buy":
                 #if a new low is set from last four candles, close long and start a short
-                if min < self.lastFour.getMin():
-                    self.amount += self.pos.getProfit(self.lastFour.getMin()-1)
-                    print "closed for " + str(self.pos.getProfit(self.lastFour.getMin()-1)) + " profit\nAmount: " + str(self.amount)
-                    self.pos = Position("Sell", self.lastFour.getMin()-1, self.amount/(self.lastFour.getMin()-1))
+                if min < self.candleHeap.getMin():
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1)
+                    print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()-1)) + " profit\nAmount: " + str(self.amount)
+                    self.pos = Position("Sell", self.candleHeap.getMin()-1, self.amount/(self.candleHeap.getMin()-1))
             elif self.pos.bos == "Sell":
                 #else if a new high is set, close shorts and open a long
-                if max > self.lastFour.getMax():
-                    self.amount += self.pos.getProfit(self.lastFour.getMin()+1)
-                    print "closed for " + str(self.pos.getProfit(self.lastFour.getMin()+1)) + " profit\nAmount: " + str(self.amount)
-                    self.pos = Position("Sell",self.lastFour.getMin()+1, self.amount/(self.lastFour.getMin()+1))
+                if max > self.candleHeap.getMax():
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()+1)
+                    print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()+1)) + " profit\nAmount: " + str(self.amount)
+                    self.pos = Position("Sell",self.candleHeap.getMin()+1, self.amount/(self.candleHeap.getMin()+1))
 
-        self.lastFour.add(min, max)
+        self.candleHeap.add(min, max)

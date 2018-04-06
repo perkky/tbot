@@ -65,10 +65,10 @@ class Tbot:
                 if min < lastFour.getMin():
                     self.amount += self.pos.getProfit(lastFour.getMin()-1)
                     self.pos = Position("Sell",lastFour.getMin()-1, self.amount/(lastFour.getMin()-1))
-            else if self.pos.bos == "Sell":
+            elif self.pos.bos == "Sell":
                 #else if a new high is set, close shorts and open a long
                 if max > lastFour.getMax():
                     self.amount += self.pos.getProfit(lastFour.getMin()+1)
                     self.pos = Position("Sell",lastFour.getMin()+1, self.amount/(lastFour.getMin()+1))
-                    
+
         self.lastFour.add(min, max)

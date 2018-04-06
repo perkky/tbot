@@ -8,7 +8,7 @@ class Position:
         self.amount = amount
 
     def getProfit(self, price):
-        profit = (price - self.price) *amount
+        profit = (price - self.price) *self.amount
         if self.bos == "Sell":
             profit = -profit
 
@@ -24,9 +24,9 @@ class LastFour:
         self.min = []
 
     def add(self, min, max):
-        if not num == 4:
-            self.max[self.num] = max
-            self.min[self.num] = min
+        if not self.num == 4:
+            self.max.append(max)
+            self.min.append(min)
             self.num += 1
         else:
             'ripple them down'
@@ -59,16 +59,18 @@ class Tbot:
         self.pos = Position("Buy", 100, 0)
 
     def update(self, min, max):
-        if lastFour.getNum() == 4:
+        if self.lastFour.getNum() == 4:
             if self.pos.bos == "Buy":
                 #if a new low is set from last four candles, close long and start a short
-                if min < lastFour.getMin():
-                    self.amount += self.pos.getProfit(lastFour.getMin()-1)
-                    self.pos = Position("Sell",lastFour.getMin()-1, self.amount/(lastFour.getMin()-1))
+                if min < self.lastFour.getMin():
+                    self.amount += self.pos.getProfit(self.lastFour.getMin()-1)
+                    print "closed for " + str(self.pos.getProfit(self.lastFour.getMin()-1)) + " profit\nAmount: " + str(self.amount)
+                    self.pos = Position("Sell", self.lastFour.getMin()-1, self.amount/(self.lastFour.getMin()-1))
             elif self.pos.bos == "Sell":
                 #else if a new high is set, close shorts and open a long
-                if max > lastFour.getMax():
-                    self.amount += self.pos.getProfit(lastFour.getMin()+1)
-                    self.pos = Position("Sell",lastFour.getMin()+1, self.amount/(lastFour.getMin()+1))
+                if max > self.lastFour.getMax():
+                    self.amount += self.pos.getProfit(self.lastFour.getMin()+1)
+                    print "closed for " + str(self.pos.getProfit(self.lastFour.getMin()+1)) + " profit\nAmount: " + str(self.amount)
+                    self.pos = Position("Sell",self.lastFour.getMin()+1, self.amount/(self.lastFour.getMin()+1))
 
         self.lastFour.add(min, max)

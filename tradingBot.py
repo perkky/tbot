@@ -64,7 +64,7 @@ class Tbot:
             if self.pos.bos == "Buy":
                 #if a new low is set from last four candles, close long and start a short
                 if min < self.candleHeap.getMin():
-                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - 0.001*self.amount
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - 0.0015*self.amount
                     self.totalTraded += self.amount
                     print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()-1)) + " profit\nAmount: " + str(self.amount)
                     self.pos = Position("Sell", self.candleHeap.getMin()-1, self.amount/(self.candleHeap.getMin()-1))
@@ -72,7 +72,7 @@ class Tbot:
                 #else if a new high is set, close shorts and open a long
                 if max > self.candleHeap.getMax():
                     self.totalTraded += self.amount
-                    self.amount += self.pos.getProfit(self.candleHeap.getMin()+1) - 0.001*self.amount
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()+1) - 0.0015*self.amount
                     print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()+1)) + " profit\nAmount: " + str(self.amount)
                     self.pos = Position("Sell",self.candleHeap.getMin()+1, self.amount/(self.candleHeap.getMin()+1))
 

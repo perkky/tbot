@@ -15,3 +15,4 @@ with open('1 Bitfinex 15m data.txt', 'r') as csvfile:
         tbot.update(float(row[0].split(',')[4]), float(row[0].split(',')[3]))
 
 print "Final amount: " + str(tbot.amount)
+print "Total amount traded: " + str(tbot.totalTraded)

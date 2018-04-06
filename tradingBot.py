@@ -1,4 +1,20 @@
-class lastFour:
+class Position:
+    #bos - buy or sell
+    #initial price
+    #amount
+    def __init__(self, bos, price, amount):
+        self.bos = bos
+        self.price = price
+        self.amount = amount
+
+    def getProfit(self, price):
+        profit = (price - self.price) *amount
+        if self.bos == "Sell":
+            profit = -profit
+
+        return profit
+
+class LastFour:
     #num is number of candles (should be 4 after the first 4 are added)
     #max is a list of the latest 4 maxs
     #min is a list of the latest 4 mins
@@ -30,9 +46,22 @@ class lastFour:
     def getMin(self):
         return min(self.min)
 
-class tbot:
+    def getNum(self):
+        return self.num
+
+class Tbot:
 
     #initalise these variables
     #float max[] - last 4
     def __init__(self):
-        self.yes = 10
+        self.lastFour = LastFour()
+        self.bos = ""
+        self.amount = 1500
+        self.pos = 0
+
+    def update(self, min, max):
+        if lastFour.getNum() == 4:
+
+
+
+        self.lastFour.add(min, max)

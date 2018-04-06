@@ -64,7 +64,7 @@ class Tbot:
                 #if a new low is set from last four candles, close long and start a short
                 if min < self.candleHeap.getMin():
                     self.amount += self.pos.getProfit(self.candleHeap.getMin()-1)
-                    print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()-1)) + " profit\nAmount: " + str(self.amount)
+                    print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()-1)) + " profit\nAmount: " + str(self.amount)- 0.0002*10000
                     self.pos = Position("Sell", self.candleHeap.getMin()-1, self.amount/(self.candleHeap.getMin()-1))
             elif self.pos.bos == "Sell":
                 #else if a new high is set, close shorts and open a long

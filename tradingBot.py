@@ -55,7 +55,7 @@ class Tbot:
     def __init__(self):
         self.lastFour = LastFour()
         self.bos = ""
-        self.amount = 1500
+        self.amount = 10000
         self.pos = Position("Buy", 100, 0)
 
     def update(self, min, max):

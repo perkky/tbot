@@ -3,6 +3,7 @@ import urllib2
 import re
 
 def fetchData(timeFrame, coinCode, outputFile, targetLength):
+    regex = re.compile(r"\d{13},(?:(?:(?:\d{4}\.[0-9]+)|(?:\d{4})),){4}[0-9]+\.[0-9]+")
     data = []
     length = 0
 
@@ -12,7 +13,8 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength):
 
         response = urllib2.urlopen(url)
         html = response.read()
-        tmpData = re.findall(r'(\d{13}),((?:\d{4}.[0-9]+)|(?:\d{4})),((?:\d{4}.[0-9]+)|(?:\d{4})),((?:\d{4}.[0-9]+)|(?:\d{4})),((?:\d{4}.[0-9]+)|(?:\d{4})),((?:\d{3}.[0-9]+)|(?:\d{4})),?',html)
+        rawData = regex.findall(html)
+        tmpData = [item.split(",") for item in rawData]
         urlPost = "&end={MTS}".format(MTS=str(tmpData.pop(len(tmpData)-1))[0])
         data.append(tmpData)
 
@@ -30,5 +32,5 @@ def writeToFile(data):
 timeFrame = "15m"
 coinCode = "tBTCUSD"
 outputFile = "5 Bitfinex 15m data.txt"
-targetLength = 1
+targetLength = 10000
 writeToFile(fetchData(timeFrame, coinCode, outputFile, targetLength))

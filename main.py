@@ -3,11 +3,11 @@ from tradingBot import CandleHeap
 from tradingBot import Tbot
 import csv
 
-tbot = Tbot(6)
+tbot = Tbot(4)
 
 print "Initial amount: " + str(tbot.amount)
 
-with open('Bitfinex 30m data.txt', 'r') as csvfile:
+with open('Bitfinex 1hr data.txt', 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter='\n')
 
     for row in reversed(list(reader)):

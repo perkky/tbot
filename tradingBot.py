@@ -50,18 +50,25 @@ class LastFour:
         return self.num
 
 class Tbot:
-
     #initalise these variables
     #float max[] - last 4
     def __init__(self):
         self.lastFour = LastFour()
         self.bos = ""
         self.amount = 1500
-        self.pos = 0
+        self.pos = Position("Buy", 100, 0)
 
     def update(self, min, max):
         if lastFour.getNum() == 4:
-
-
-
+            if self.pos.bos == "Buy":
+                #if a new low is set from last four candles, close long and start a short
+                if min < lastFour.getMin():
+                    self.amount += self.pos.getProfit(lastFour.getMin()-1)
+                    self.pos = Position("Sell",lastFour.getMin()-1, self.amount/(lastFour.getMin()-1))
+            else if self.pos.bos == "Sell":
+                #else if a new high is set, close shorts and open a long
+                if max > lastFour.getMax():
+                    self.amount += self.pos.getProfit(lastFour.getMin()+1)
+                    self.pos = Position("Sell",lastFour.getMin()+1, self.amount/(lastFour.getMin()+1))
+                    
         self.lastFour.add(min, max)

@@ -6,9 +6,10 @@ import urllib2
 import re
 import time
 
-def fetchData(timeFrame, coinCode, outputFile, targetLength):
+def fetchData(timeFrame, coinCode, outputFile, targetLength=1000):
+
+    f = open(outputFile, 'a')
     regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]
-    data = []
     numEntries = 0
     urlPost = ""
 
@@ -18,31 +19,19 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength):
         try:
             response = urllib2.urlopen(url)
             html = response.read()
-            rawData = regex.findall(html)
-            tmpData = [item.split(",") for item in rawData]
-            urlPost = "&end={MTS}".format(MTS=tmpData.pop(len(tmpData) - 1)[0]) #Last entry is deleted, otherwise it will be repeated.
-            data.append(tmpData)
-            numEntries += len(tmpData)
+            data = [item.split(",") for item in regex.findall(html)]
+            urlPost = "&end={MTS}".format(MTS=data.pop(len(data) - 1)[0]) #Last entry is deleted, otherwise it will be repeated.
+
+            for entry in data:
+                    f.write(','.join(entry) + "\n")
+
+            numEntries += len(data)
+            print "Added " + str(len(data)) + " entries, total: " + str(numEntries)
 
         except urllib2.HTTPError as err:
             print err
             print "Trying again in 60 seconds"
             time.sleep(60)
 
-    print "Successfully fetch data, {x} number of entries.".format(x=numEntries)
-
-    return data
-
-def writeToFile(data, outputFile):
-    f = open(outputFile, 'a')
-    for entry in data:
-        for item in entry:
-            f.write("{MTS},{OPEN},{CLOSE},{HIGH},{LOW},{VOLUME}\n".format(MTS=item[0],OPEN=item[1],CLOSE=item[2],HIGH=item[3],LOW=item[4],VOLUME=item[5]))
-
-
-
-timeFrame = "15m"
-coinCode = "tBTCUSD"
-outputFile = "5 Bitfinex 15m data.txt"
-targetLength = 20000
-writeToFile(fetchData(timeFrame, coinCode, outputFile, targetLength), outputFile)
+    f.close()
+    print "Finished with " + str(numEntries) + " number of entries"

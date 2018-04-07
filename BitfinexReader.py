@@ -35,6 +35,10 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength):
 
 def writeToFile(data, outputFile):
     f = open(outputFile, 'a')
+    for entry in data:
+        for item in entry:
+            f.write("{MTS},{OPEN},{CLOSE},{HIGH},{LOW},{VOLUME}\n".format(MTS=item[0],OPEN=item[1],CLOSE=item[2],HIGH=item[3],LOW=item[4],VOLUME=item[5]))
+
 
 
 timeFrame = "15m"

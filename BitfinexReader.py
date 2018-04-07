@@ -6,12 +6,13 @@ import urllib2
 import re
 import time
 
-def fetchData(timeFrame, coinCode, outputFile, targetLength=1000):
+def fetchData(timeFrame, coinCode, outputFile, targetLength=1000, limit=1000, end=""):
 
     f = open(outputFile, 'a')
     regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]
     numEntries = 0
-    urlPost = ""
+    urlPost = "&end=" + str(end)
+    tooManyRequest = False
 
     while numEntries < targetLength:
         url = 'https://api.bitfinex.com/v2/candles/trade:{x}:{y}/hist?limit=1000{z}'.format(x=timeFrame, y=coinCode, z=urlPost)
@@ -27,11 +28,21 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength=1000):
 
             numEntries += len(data)
             print "Added " + str(len(data)) + " entries, total: " + str(numEntries)
+            tooManyRequest = False
 
         except urllib2.HTTPError as err:
-            print err
-            print "Trying again in 60 seconds"
-            time.sleep(60)
+            if err.reason == "Too Many Requests":
+                if tooManyRequest == False:
+                    tooManyRequest = True
+                    print err.reason
+                    print "Retrying until successful..."
+            else:
+                raise
 
     f.close()
     print "Finished with " + str(numEntries) + " number of entries"
+<<<<<<< HEAD
+=======
+
+fetchData('15m','tBTCUSD','6 Bitfinex 15m data.csv',targetLength=20000,end=1423052120000)
+>>>>>>> BitfinexReader updates:

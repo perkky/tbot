@@ -50,16 +50,21 @@ class CandleHeap:
         return self.num
 
 class Tbot:
-    #initalise these variables
-    #float max[] - last 4
+    #initalise variables
     def __init__(self, num):
         self.candleHeap = CandleHeap(num)
-        self.bos = ""
-        self.amount = 10000
-        self.pos = Position("Buy", 100, 0)
-        self.totalTraded = 0
+        self.bos = ""                               #Buy or sell variable
+        self.amount = 10000                         #Total ammount
+        self.pos = Position("Buy", 100, 0)          #Current position
+        self.totalTraded = 0                        #Total value traded
+        self.emaNum1 = 15                           #1st ema days
+        self.emaNum2= 24                            #2nd ema days
+        self.ema1 = 0                               #1st ema
+        self.ema2 = 0                               #2nd ema
+        self.numCandles = 0                         #num candles that have been added - used for crossing ema
 
-    def update(self, min, max):
+
+    def fourCandleStrat(self, min, max):
         if self.candleHeap.getNum() == self.candleHeap.numCandles:
             if self.pos.bos == "Buy":
                 #if a new low is set from last four candles, close long and start a short
@@ -77,3 +82,32 @@ class Tbot:
                     self.pos = Position("Sell",self.candleHeap.getMin()+1, self.amount/(self.candleHeap.getMin()+1))
 
         self.candleHeap.add(min, max)
+
+
+    def crossingEMAStrat(self, close):
+        self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
+        self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
+        change = self.ema1 - self.ema2
+        delta = 50  #how far the emas need to be after crossing before chaging position
+
+        #makes sure sufficient data has been provided to allow for proper ema base calculation
+        if self.numCandles > 100:
+            diff = self.ema1 - self.ema2 #faster one take slower one - +ve is bullish, -ve is bearish
+
+            if self.pos.bos == "Sell" and change >= delta:
+                #closes the position, adds the profit to the amount and then opens up an opposite position
+                self.amount += self.pos.getProfit(close) - 0.002*self.amount
+                self.totalTraded += self.amount
+                print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                self.pos = Position("Buy", close, self.amount/(close))
+            elif self.pos.bos == "Buy" and change <= -delta:
+                #closes the position, adds the profit to the amount and then opens up an opposite position
+                self.amount += self.pos.getProfit(close) - 0.002*self.amount
+                self.totalTraded += self.amount
+                print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                self.pos = Position("Sell", close, self.amount/(close))
+        else:
+            self.numCandles = self.numCandles + 1
+
+    def update(self, open, close, min, max):
+        self.crossingEMAStrat(close)

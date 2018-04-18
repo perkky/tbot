@@ -112,6 +112,9 @@ class Tbot:
                 self.totalTraded += tradingAmount
                 #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
                 self.pos = Position("Sell", close, tradingAmount/(close))
+
+            if self.pos.getProfit(close) < -1500:
+                print "You've been margin called!"
         else:
             self.numCandles = self.numCandles + 1
 

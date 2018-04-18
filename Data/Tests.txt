@@ -1,0 +1,48 @@
+5000 data sample
+Not reinvested
+Coin: BTC
+Average final amount : 	15036
+Average profit percent:	50.3
+Average time:			308.4
+
+5000 data sample
+Reinvested
+Coin: BTC
+Average final amount:   20253.72
+Average profit percent: 102.54
+Average time:           318.00 days
+
+100 data sample
+Not Reinvested
+Coin: ETH
+Average final amount:   24569.30
+Average profit percent: 145.69
+Average time:           164.00 days
+
+100 data sample
+Reinvested
+Coin: ETH
+Average final amount:   50531.03
+Average profit percent: 405.31
+Average time:           166.00 days
+
+500 data sample
+Not Reinvested
+Coin: ETH
+Average final amount:   24066.78
+Average profit percent: 140.67
+Average time:           172.00 days
+
+5000 data sample
+Not Reinvested
+Coin: ETH
+Average final amount:   25856.88
+Average profit percent: 158.57
+Average time:           187.00 days
+
+30000 data sample
+Not Reinvested
+Coin: BTC
+Average final amount:   15554.32
+Average profit percent: 55.54
+Average time:           189.00 days

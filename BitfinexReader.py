@@ -2,6 +2,8 @@
 #Purpose : Extract HTML from "Bitfinex' Trade Candle" cUrl, format the data and output to a specify file.
 #          Multiple html request may be sent until enough data is extracted.
 
+#candles are saved in this format
+#time, open, close, high, low, volume
 import urllib2
 import re
 import time
@@ -42,4 +44,4 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength=1000, limit=1000, en
     f.close()
     print "Finished with " + str(numEntries) + " number of entries"
 
-fetchData('15m','tBTCUSD','Data\8 Bitfinex 15m data.csv',targetLength=500)
+fetchData('1h','tETHUSD','Data/ETH/1hr/2018-2016.csv',targetLength=20000)

@@ -1,11 +1,13 @@
+import csv
+
 class Candle:
     def __init__(self, time, open, close, min, max, volume):
-        setTime(time)
-        setOpen(open)
-        setClose(close)
-        setMin(min)
-        setMax(max)
-        setVol(volume)
+        self.setTime(time)
+        self.setOpen(open)
+        self.setClose(close)
+        self.setMin(min)
+        self.setMax(max)
+        self.setVol(volume)
 
     def setTime(self, time):
         if time >= 0:
@@ -38,17 +40,17 @@ class Candle:
         else:
             print "Error setting volume for candle"
 
-    def getTime(self, time):
+    def getTime(self):
         return self.time
-    def getOpen(self, open):
+    def getOpen(self):
         return self.open
-    def getClose(self, close):
+    def getClose(self):
         return self.close
-    def getMin(self, min):
+    def getMin(self):
         return self.min
-    def getMax(self, max):
+    def getMax(self):
         return self.max
-    def getVol(self, volume):
+    def getVol(self):
         return self.volume
 
 class Data:
@@ -61,7 +63,7 @@ class Data:
 
     def addCandle(self, time, open, close, min, max, volume):
         index = 0
-        for candle in self.Data:
+        for candle in self.data:
             if candle.getTime() > time:
                 break
             elif candle.getTime() == time:
@@ -71,6 +73,24 @@ class Data:
                 index += 1
 
         if index >= 0:
-            self.data.insert(Candle(time,open,close,min,max,volume), index)
+            self.data.insert(index, Candle(time,open,close,min,max,volume))
         else:
             print "Candle time already exists"
+
+    def calcEMA(self, days):
+        multiplier = 2/(float(days)+1)
+        ema = 0.0
+
+        for candle in self.data:
+            ema = (candle.getClose()-ema)*multiplier + ema
+
+        return ema
+
+data = Data("15m")
+with open('Data/8 Bitfinex 15m data.csv', 'r') as csvfile:
+    reader = csv.reader(csvfile, delimiter='\n')
+
+    for row in reader:
+        data.addCandle(int(row[0].split(',')[0]), float(row[0].split(',')[1]), float(row[0].split(',')[2]), float(row[0].split(',')[3]), float(row[0].split(',')[4]), float(row[0].split(',')[5]))
+
+print str(data.calcEMA(55))

@@ -51,18 +51,20 @@ class CandleHeap:
 
 class Tbot:
     #initalise variables
-    def __init__(self, num):
+    def __init__(self, num, ema1, ema2):
         self.candleHeap = CandleHeap(num)
         self.bos = ""                               #Buy or sell variable
         self.amount = 10000                         #Total ammount
         self.pos = Position("Buy", 100, 0)          #Current position
         self.totalTraded = 0                        #Total value traded
-        self.emaNum1 = 15                           #1st ema days
-        self.emaNum2= 24                            #2nd ema days
+        self.emaNum1 = ema1                         #1st ema days
+        self.emaNum2= ema2                          #2nd ema days
         self.ema1 = 0                               #1st ema
         self.ema2 = 0                               #2nd ema
         self.numCandles = 0                         #num candles that have been added - used for crossing ema
-
+        self.first = 0                              #the first candles time
+        self.elapsedTime = 0                        #time minutes of last candle - first candle
+        self.totalCandles = 0                       #total amount of candles
 
     def fourCandleStrat(self, min, max):
         if self.candleHeap.getNum() == self.candleHeap.numCandles:
@@ -85,29 +87,39 @@ class Tbot:
 
 
     def crossingEMAStrat(self, close):
+        #set to either self.amount for compounded or a flat number
+        tradingAmount = 10000
+
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
         change = self.ema1 - self.ema2
-        delta = 50  #how far the emas need to be after crossing before chaging position
-
+        delta = 0.004*close  #how far the emas need to be after crossing before chaging position
+                    #can be a flat value or a % - 50 flat works well for btc
+        fees = 0.002*tradingAmount#*0
         #makes sure sufficient data has been provided to allow for proper ema base calculation
         if self.numCandles > 100:
             diff = self.ema1 - self.ema2 #faster one take slower one - +ve is bullish, -ve is bearish
 
             if self.pos.bos == "Sell" and change >= delta:
                 #closes the position, adds the profit to the amount and then opens up an opposite position
-                self.amount += self.pos.getProfit(close) - 0.002*self.amount
-                self.totalTraded += self.amount
-                print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
-                self.pos = Position("Buy", close, self.amount/(close))
+                self.amount += self.pos.getProfit(close) - fees
+                self.totalTraded += tradingAmount
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                self.pos = Position("Buy", close, tradingAmount/(close))
             elif self.pos.bos == "Buy" and change <= -delta:
                 #closes the position, adds the profit to the amount and then opens up an opposite position
-                self.amount += self.pos.getProfit(close) - 0.002*self.amount
-                self.totalTraded += self.amount
-                print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
-                self.pos = Position("Sell", close, self.amount/(close))
+                self.amount += self.pos.getProfit(close) - fees
+                self.totalTraded += tradingAmount
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                self.pos = Position("Sell", close, tradingAmount/(close))
         else:
             self.numCandles = self.numCandles + 1
 
-    def update(self, open, close, min, max):
+    def update(self, time, open, close, min, max):
+        if self.first == 0:
+            self.first = time
+
         self.crossingEMAStrat(close)
+
+        self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
+        self.totalCandles += 1

@@ -41,8 +41,5 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength=1000, limit=1000, en
 
     f.close()
     print "Finished with " + str(numEntries) + " number of entries"
-<<<<<<< HEAD
-=======
 
-fetchData('15m','tBTCUSD','6 Bitfinex 15m data.csv',targetLength=20000,end=1423052120000)
->>>>>>> BitfinexReader updates:
+fetchData('15m','tBTCUSD','Data\8 Bitfinex 15m data.csv',targetLength=500)

@@ -85,19 +85,22 @@ class Data:
     def calcEMA(self, days):
         multiplier = 2/(float(days)+1)
         ema = 0.0
+        num = 0
 
         for candle in self.data:
             ema = (candle.getClose()-ema)*multiplier + ema
+
 
         return ema
 
 
 #Just test stuff
 data = Data("15m")
-with open('Data/8 Bitfinex 15m data.csv', 'r') as csvfile:
+with open('Data/5 Bitfinex 15m data.txt', 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter='\n')
 
+    #only need 9 characters for time as the remainig are 0's
     for row in reader:
-        data.addCandle(int(row[0].split(',')[0]), float(row[0].split(',')[1]), float(row[0].split(',')[2]), float(row[0].split(',')[3]), float(row[0].split(',')[4]), float(row[0].split(',')[5]))
+        data.addCandle(int(row[0].split(',')[0]), float(row[0].split(',')[1]), float(row[0].split(',')[2]), float(row[0].split(',')[4]), float(row[0].split(',')[3]), float(row[0].split(',')[5]))
 
-print str(data.calcEMA(55))
+print str(data.calcEMA(24))

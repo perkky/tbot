@@ -1,5 +1,10 @@
 import csv
 
+#Author  : Ryan Pyrc
+#Purpose : Load candle data into memory and be able to preform various functions with the data,
+#          such as test strategies and random amounts, converting 1m data to 15m etc.
+
+
 class Candle:
     def __init__(self, time, open, close, min, max, volume):
         self.setTime(time)
@@ -86,6 +91,8 @@ class Data:
 
         return ema
 
+
+#Just test stuff
 data = Data("15m")
 with open('Data/8 Bitfinex 15m data.csv', 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter='\n')

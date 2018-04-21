@@ -65,6 +65,11 @@ class Tbot:
         self.first = 0                              #the first candles time
         self.elapsedTime = 0                        #time minutes of last candle - first candle
         self.totalCandles = 0                       #total amount of candles
+        self.marginCalled = False                   #flag to see if you were margin called
+
+
+        self.ema12 = 0                               #2nd 1st ema
+        self.ema22 = 0                               #2nd 2nd ema
 
     def fourCandleStrat(self, min, max):
         if self.candleHeap.getNum() == self.candleHeap.numCandles:
@@ -114,9 +119,63 @@ class Tbot:
                 self.pos = Position("Sell", close, tradingAmount/(close))
 
             if self.pos.getProfit(close) < -1500:
-                print "You've been margin called!"
+                print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
+                self.marginCalled = True
+
         else:
             self.numCandles = self.numCandles + 1
+
+    #similar to the crossing ema strat, except it will only trade with the trend
+    #if the larger ema is sloping down it will only short and vice versa
+    def crossingEMATrend(self, close):
+        #set to either self.amount for compounded or a flat number
+        tradingAmount = 10000
+
+        self.ema12 = self.ema1
+        self.ema22 = self.ema2
+
+        self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
+        self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
+        change = self.ema1 - self.ema2
+        delta = 0.004*close  #how far the emas need to be after crossing before chaging position
+                    #can be a flat value or a % - 50 flat works well for btc
+        fees = 0.002*tradingAmount#*0
+        #makes sure sufficient data has been provided to allow for proper ema base calculation
+        if self.numCandles > 100:
+            diff = self.ema1 - self.ema2 #faster one take slower one - +ve is bullish, -ve is bearish
+
+            if change >= delta:
+                if self.pos.bos == "Sell":
+                    #closes the position, adds the profit to the amount and then opens up an opposite position
+                    self.amount += self.pos.getProfit(close) - fees
+                    self.totalTraded += tradingAmount
+                    self.pos = Position("Empty", close, 0) #make it no trade
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+
+                #only open a long position if the bigger ema is trending up
+                if self.pos.bos == "Empty" and (self.ema1 - self.ema12) > 0:
+                    self.pos = Position("Buy", close, tradingAmount/(close))
+
+
+            elif change <= -delta:
+                if self.pos.bos == "Buy":
+                    #closes the position, adds the profit to the amount and then opens up an opposite position
+                    self.amount += self.pos.getProfit(close) - fees
+                    self.totalTraded += tradingAmount
+                    self.pos = Position("Empty", close, 0) #make it no trade
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+
+                #only open a short position if the bigger ema is trending down
+                if self.pos.bos == "Empty" and (self.ema1 - self.ema12) < 0:
+                    self.pos = Position("Sell", close, tradingAmount/(close))
+
+            if self.pos.getProfit(close) < -1500:
+                print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
+                self.marginCalled = True
+
+        else:
+            self.numCandles = self.numCandles + 1
+
 
     def update(self, time, open, close, min, max):
         if self.first == 0:

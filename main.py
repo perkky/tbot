@@ -22,7 +22,7 @@ def testData(fileLocation):
     print "\nOriginal amount:\t10000"
     print "Final amount:\t\t%.2f" % tbot.amount
     print "Profit percentage:\t%.2f %%" % (100*tbot.amount/10000 - 100)
-    print "Time elapsed:\t%d days, %.2f hours and %.2f minutes (%d candles)" % (int(tbot.elapsedTime/ 1440), int((tbot.elapsedTime % 1440)/ 60), (tbot.elapsedTime % 1440 % 60), tbot.totalCandles)
+    print "Time elapsed:\t\t%d days, %.2f hours and %.2f minutes (%d candles)" % (int(tbot.elapsedTime/ 1440), int((tbot.elapsedTime % 1440)/ 60), (tbot.elapsedTime % 1440 % 60), tbot.totalCandles)
     print "Total amount traded:\t" + str(tbot.totalTraded)
 
 #Test numTimes random data sets from the file fileLocation
@@ -34,6 +34,9 @@ def testRandomRange(fileLocation, numTimes, upper):
     amount = 0
     days = 0
     profitPercent = 0
+    marginCalled = 0
+    best = -100
+    worst = 100
     print "Initial: 10000"
     print "Number\t\tLower\t\tUpper\t\tRange (days)\t\tTotal\t\tProfit Percentage"
     with open(fileLocation, 'r') as csvfile:
@@ -53,14 +56,22 @@ def testRandomRange(fileLocation, numTimes, upper):
 
             amount += tbot.amount
             profitPercent += (100*tbot.amount/10000 - 100)
+            if (100*tbot.amount/10000 - 100) > best:
+                best = (100*tbot.amount/10000 - 100)
+            elif (100*tbot.amount/10000 - 100) < worst:
+                worst = (100*tbot.amount/10000 - 100)
+
             days += tbot.elapsedTime/ 1440
             print "%d\t\t%d\t\t%d\t\t%.2f\t\t%.2f\t\t%.4f" % (num, low, high, tbot.elapsedTime/ 1440, tbot.amount, (100*tbot.amount/10000 - 100))
             num += 1
+            if tbot.marginCalled == True:
+                marginCalled += 1
 
 
     print "Average final amount:\t%.2f" % (amount/numTimes)
     print "Average profit percent:\t%.2f" % (profitPercent/numTimes)
     print "Average time:\t\t%.2f days" % (days/numTimes)
-
-testData('Data/BTC/1hr/300 18-4.csv')
-#testRandomRange('Data/BTC/1hr/2018-2014.csv', 100, 15000)
+    print "You were margin called:\t%d times (%.2f%%)" % (marginCalled, float(marginCalled)*100/numTimes)
+    print "Best:%.2f\tWorst:%.2f" % (best, worst)
+#testData('Data/BTC/1hr/2000 21-4.csv')
+testRandomRange('Data/BTC/1hr/2018-2014.csv', 5000, 30968)

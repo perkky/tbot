@@ -44,4 +44,4 @@ def fetchData(timeFrame, coinCode, outputFile, targetLength=1000, limit=1000, en
     f.close()
     print "Finished with " + str(numEntries) + " number of entries"
 
-fetchData('1h','tETHUSD','Data/ETH/1hr/2018-2016.csv',targetLength=20000)
+fetchData('1h','tBTCUSD','Data/BTC/1hr/2000 21-4.csv',targetLength=1989)

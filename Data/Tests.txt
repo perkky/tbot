@@ -46,3 +46,19 @@ Coin: BTC
 Average final amount:   15554.32
 Average profit percent: 55.54
 Average time:           189.00 days
+
+1000 data sample - normal strat
+Not Reinvested
+Coin: BTC
+Average final amount:   15177.50
+Average profit percent: 51.77
+Average time:           312.00 days
+You were margin called: 0 times (0.00%)
+
+1000 data sample - trend strat
+Not Reinvested
+Coin: BTC
+Average final amount:   15424.17
+Average profit percent: 54.24
+Average time:           317.00 days
+You were margin called: 0 times (0.00%)

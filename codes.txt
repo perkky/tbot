@@ -1,0 +1,38 @@
+bu	balance update
+ps	position snapshot
+pn	new position
+pu	position update
+pc	position close
+ws	wallet snapshot
+wu	wallet update
+os	order snapshot
+on	new order
+ou	order update
+oc	order cancel
+oc-req	order cancel request
+oc_multi-req	multiple orders cancel request
+te	trade executed
+tu	trade execution update
+fte	funding trade execution
+ftu	funding trade update
+hos	historical order snapshot
+mis	margin information snapshot
+miu	margin information update
+n	notification
+fos	funding offer snapshot
+fon	funding offer new
+fou	funding offer update
+foc	funding offer cancel
+hfos	historical funding offer snapshot
+fcs	funding credits snapshot
+fcn	funding credits new
+fcu	funding credits update
+fcc	funding credits close
+hfcs	historical funding credits snapshot
+fls	funding loan snapshot
+fln	funding loan new
+flu	funding loan update
+flc	funding loan close
+hfls	historical funding loan snapshot
+hfts	historical funding trade snapshot
+uac	user custom price alert

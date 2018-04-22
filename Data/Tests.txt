@@ -62,3 +62,5 @@ Average final amount:   15424.17
 Average profit percent: 54.24
 Average time:           317.00 days
 You were margin called: 0 times (0.00%)
+
+https://stackoverflow.com/questions/44830995/bitfinex-api-v2-error-invalid-key

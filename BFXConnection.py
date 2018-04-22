@@ -27,24 +27,3 @@ class BFXConnection:
         print "Recieved %s" % result
         result = self.ws.recv()
         print "Recieved %s" % result
-
-
-
-con = BFXConnection("wss://api.bitfinex.com/ws/2", "ykVwqMBQOZJXwxfI0Qb4cGJVEa446ra83dWzJmsCt4d", "wm9oagLDmutvDlu2Ka9cWPtW7k5g8NLzv146LS28VgI")
-
-"""
-ws = create_connection("wss://api.bitfinex.com/ws/2")
-msg = json.dumps({
-  'event': 'subscribe',
-  'channel': 'ticker',
-  'symbol': 'tBTCUSD'
-}, separators=(',',':'))
-print msg
-ws.send(msg)
-
-result = ws.recv()
-print "Recieved %s" % result
-result = ws.recv()
-print "Recieved %s" % result
-result = ws.recv()
-print "Recieved %s" % result"""

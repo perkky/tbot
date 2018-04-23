@@ -113,7 +113,7 @@ class Tbot:
 
     def crossingEMAStrat(self, close):
         #set to either self.amount for compounded or a flat number
-        tradingAmount = 10000
+        tradingAmount = self.amount
 
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
@@ -201,8 +201,7 @@ class Tbot:
         if self.first == 0:
             self.first = time
 
-        #self.crossingEMAStrat(close)
-        self.fourCandleStrat(min, max)
+        self.crossingEMAStrat(close)
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

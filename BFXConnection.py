@@ -6,6 +6,11 @@ import hashlib
 import hmac
 import os
 import time
+import FinexAPI
+
+#***********************depriciated***************************
+#used finexAPI instead
+
 
 class BFXConnection:
     def _nonce(self):
@@ -42,13 +47,13 @@ class BFXConnection:
     #not anything, delete l8r
     def getPositions(self):
         #nothing, get rid when finished
-        msg = json.dumps({ 'event':'subscribe', 'channel': "Candles", 'key': 'trade:15m:tBTCUSD'})
+        msg = json.dumps({ 'event':'subscribe', 'channel': "ticker", 'pair': 'BTCUSD'})
 
         self.ws.send(msg)
 
     def closeCurrentPosition(self):
         for pos in self.positions:
-            msg = """[0,'fon',{ 'type': "LIMIT",'symbol': "tBTCUSD", 'amount': '0.1', 'rate': '8000', 'period': 7, 'flags': 0 })]"""
+            msg = str([0,'on',None,json.dumps({"cid": 12345, "type": "LIMIT", "symbol": "tBTCUSD", "amount": "0.1", "price": "8000"})])
             self.ws.send(msg)
 
     #internally updates the positions
@@ -136,11 +141,16 @@ class BFXConnection:
             #do nothing
             pass
 
-con = BFXConnection("wss://api.bitfinex.com/ws/2", "ykVwqMBQOZJXwxfI0Qb4cGJVEa446ra83dWzJmsCt4d", "wm9oagLDmutvDlu2Ka9cWPtW7k5g8NLzv146LS28VgI")
-con.getPositions()
+
+FinexAPI.place_order("0.01", "500.0", "buy", "limit")
+
+"""con = BFXConnection("wss://api.bitfinex.com/ws/2", "ykVwqMBQOZJXwxfI0Qb4cGJVEa446ra83dWzJmsCt4d", "wm9oagLDmutvDlu2Ka9cWPtW7k5g8NLzv146LS28VgI")
+#con.getPositions()
+
 while True:
+
     num = input("Enter input: ")
     if num == 1:
         con.getResponse()
     if num == 2:
-        con.closeCurrentPosition()
+        con.closeCurrentPosition()"""

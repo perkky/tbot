@@ -22,11 +22,12 @@ def testData(fileLocation, ema1=8, ema2=21):
             #print row[0].split(',')[3] + " " + row[0].split(',')[4]
             tbot.update(int(row[0].split(',')[0]), float(row[0].split(',')[1]), float(row[0].split(',')[2]), float(row[0].split(',')[4]), float(row[0].split(',')[3]))
 
-    print "\nOriginal amount:\t10000"
-    print "Final amount:\t\t%.2f" % tbot.amount
+
+    print "\nOriginal value:\t10000"
+    print "Final value:\t\t%.2f" % tbot.amount
     print "Profit percentage:\t%.2f %%" % (100*tbot.amount/10000 - 100)
     print "Time elapsed:\t\t%d days, %.2f hours and %.2f minutes (%d candles)" % (int(tbot.elapsedTime/ 1440), int((tbot.elapsedTime % 1440)/ 60), (tbot.elapsedTime % 1440 % 60), tbot.totalCandles)
-    print "Total amount traded:\t" + str(tbot.totalTraded)
+    print "Total volume traded:\t" + str(tbot.totalTraded)
 
     return (100*tbot.amount/10000 - 100)
 #Test numTimes random data sets from the file fileLocation
@@ -82,8 +83,8 @@ def testRandomRange(fileLocation, numTimes, upper, ema1=8, ema2=21):
 
 #main loop
 
-#testData('Data/BTC/15m/2018-2014.csv', 27, 30)
-testRandomRange('Data/BTC/1hr/2018-2014.csv', 1000, 30700, 7, 20)
+testData('Data/BTC/1hr/2018-2014.csv', 7, 20)
+#testRandomRange('Data/BTC/1hr/2018-2014.csv', 1000, 30700, 7, 20)
 
 
 

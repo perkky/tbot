@@ -1,18 +1,21 @@
 class Position:
-    #bos - buy or sell
     #initial price
-    #amount
-    def __init__(self, bos, price, amount):
-        self.bos = bos
+    #amount - positive if long, -ve if short
+    def __init__(self, price, amount):
         self.price = price
         self.amount = amount
 
     def getProfit(self, price):
         profit = (price - self.price) *self.amount
-        if self.bos == "Sell":
-            profit = -profit
 
         return profit
+
+    def getAmount(self):
+        return self.amount
+    def getPrice(self):
+        return self.price
+
+pos = Position(10, 1)
 
 class CandleHeap:
     #num is number of candles you want to take into account
@@ -49,13 +52,18 @@ class CandleHeap:
     def getNum(self):
         return self.num
 
+    #for debugging
+    def printHeap(self):
+        print "Max: %.2f %.2f %.2f %.2f" % (self.max[0], self.max[1], self.max[2], self.max[3])
+        print "Min: %.2f %.2f %.2f %.2f" % (self.min[0], self.min[1], self.min[2], self.min[3])
+
 class Tbot:
     #initalise variables
     def __init__(self, num, ema1, ema2):
         self.candleHeap = CandleHeap(num)
         self.bos = ""                               #Buy or sell variable
         self.amount = 10000                         #Total ammount
-        self.pos = Position("Buy", 100, 0)          #Current position
+        self.pos = Position( 100, 0.01)          #Current position
         self.totalTraded = 0                        #Total value traded
         self.emaNum1 = ema1                         #1st ema days
         self.emaNum2= ema2                          #2nd ema days
@@ -72,24 +80,36 @@ class Tbot:
         self.ema22 = 0                               #2nd 2nd ema
 
     def fourCandleStrat(self, min, max):
+        amount = 10000
+        fee = 0.0015*amount
+
         if self.candleHeap.getNum() == self.candleHeap.numCandles:
-            if self.pos.bos == "Buy":
+
+            #if positive = long position
+            if self.pos.getAmount() > 0:
                 #if a new low is set from last four candles, close long and start a short
                 if min < self.candleHeap.getMin():
-                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - 0.0015*self.amount
-                    self.totalTraded += self.amount
-                    print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()-1)) + " profit\nAmount: " + str(self.amount)
-                    self.pos = Position("Sell", self.candleHeap.getMin()-1, self.amount/(self.candleHeap.getMin()-1))
-            elif self.pos.bos == "Sell":
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - fee
+                    self.totalTraded += amount
+
+                    print "\nClosed a long position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMin()-1)
+                    print "Opened up a short position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMin()-1), self.candleHeap.getMin()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMin()-1) - fee)
+
+                    self.pos = Position( self.candleHeap.getMin()-1, -amount/(self.candleHeap.getMin()-1))
+            elif self.pos.getAmount() < 0:
                 #else if a new high is set, close shorts and open a long
                 if max > self.candleHeap.getMax():
-                    self.totalTraded += self.amount
-                    self.amount += self.pos.getProfit(self.candleHeap.getMin()+1) - 0.0015*self.amount
-                    print "closed for " + str(self.pos.getProfit(self.candleHeap.getMin()+1)) + " profit\nAmount: " + str(self.amount)
-                    self.pos = Position("Sell",self.candleHeap.getMin()+1, self.amount/(self.candleHeap.getMin()+1))
+                    self.totalTraded += amount
+                    self.amount += self.pos.getProfit(self.candleHeap.getMax()+1) - fee
+
+                    print "\nClosed a short position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMax()-1)
+                    print "Opened up a long position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMax()-1), self.candleHeap.getMax()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMax()-1) - fee)
+
+                    self.pos = Position(self.candleHeap.getMax()+1, amount/(self.candleHeap.getMax()+1))
 
         self.candleHeap.add(min, max)
-
 
     def crossingEMAStrat(self, close):
         #set to either self.amount for compounded or a flat number
@@ -105,18 +125,18 @@ class Tbot:
         if self.numCandles > 100:
             diff = self.ema1 - self.ema2 #faster one take slower one - +ve is bullish, -ve is bearish
 
-            if self.pos.bos == "Sell" and change >= delta:
+            if self.pos.getAmount() < 0 and change >= delta:
                 #closes the position, adds the profit to the amount and then opens up an opposite position
                 self.amount += self.pos.getProfit(close) - fees
                 self.totalTraded += tradingAmount
                 #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
-                self.pos = Position("Buy", close, tradingAmount/(close))
-            elif self.pos.bos == "Buy" and change <= -delta:
+                self.pos = Position(close, tradingAmount/(close))
+            elif self.pos.getAmount() > 0 and change <= -delta:
                 #closes the position, adds the profit to the amount and then opens up an opposite position
                 self.amount += self.pos.getProfit(close) - fees
                 self.totalTraded += tradingAmount
                 #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
-                self.pos = Position("Sell", close, tradingAmount/(close))
+                self.pos = Position(close, -tradingAmount/(close))
 
             if self.pos.getProfit(close) < -1500:
                 print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
@@ -181,7 +201,8 @@ class Tbot:
         if self.first == 0:
             self.first = time
 
-        self.crossingEMAStrat(close)
+        #self.crossingEMAStrat(close)
+        self.fourCandleStrat(min, max)
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

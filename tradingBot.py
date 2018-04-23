@@ -113,7 +113,7 @@ class Tbot:
 
     def crossingEMAStrat(self, close):
         #set to either self.amount for compounded or a flat number
-        tradingAmount = self.amount
+        tradingAmount = 10000
 
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2

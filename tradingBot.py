@@ -145,8 +145,12 @@ class Tbot:
         else:
             self.numCandles = self.numCandles + 1
 
+
+
+    #******************Depreciated*********************
     #similar to the crossing ema strat, except it will only trade with the trend
     #if the larger ema is sloping down it will only short and vice versa
+    #depriciated - need to update how the positions work if you want to use it
     def crossingEMATrend(self, close):
         #set to either self.amount for compounded or a flat number
         tradingAmount = 10000

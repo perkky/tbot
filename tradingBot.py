@@ -111,12 +111,117 @@ class Tbot:
 
         self.candleHeap.add(min, max)
 
+    def fourCandleStratReversed(self, min, max):
+        amount = 10000
+        fee = 0.0015*amount
+
+        if self.candleHeap.getNum() == self.candleHeap.numCandles:
+
+            #if positive = long position
+            if self.pos.getAmount() < 0:
+                #if a new low is set from last four candles, close long and start a short
+                if min < self.candleHeap.getMin():
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - fee
+                    self.totalTraded += amount
+
+                    """print "\nClosed a long position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMin()-1)
+                    print "Opened up a short position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMin()-1), self.candleHeap.getMin()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMin()-1) - fee)
+                    """
+                    self.pos = Position( self.candleHeap.getMin()-1, amount/(self.candleHeap.getMin()-1))
+            elif self.pos.getAmount() > 0:
+                #else if a new high is set, close shorts and open a long
+                if max > self.candleHeap.getMax():
+                    self.totalTraded += amount
+                    self.amount += self.pos.getProfit(self.candleHeap.getMax()+1) - fee
+
+                    """print "\nClosed a short position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMax()-1)
+                    print "Opened up a long position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMax()-1), self.candleHeap.getMax()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMax()-1) - fee)
+                    """
+                    self.pos = Position(self.candleHeap.getMax()+1, -amount/(self.candleHeap.getMax()+1))
+
+        self.candleHeap.add(min, max)
+
+    def combinedStrat(self, min, max):
+        amount = 10000
+        fee = 0.0015*amount
+
+        change = self.ema1 - self.ema2
+
+        if self.candleHeap.getNum() == self.candleHeap.numCandles:
+
+            #if positive = long position
+            if self.pos.getAmount() > 0 and change < 0:
+                #if a new low is set from last four candles, close long and start a short
+                if min < self.candleHeap.getMin():
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - fee
+                    self.totalTraded += amount
+
+                    """print "\nClosed a long position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMin()-1)
+                    print "Opened up a short position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMin()-1), self.candleHeap.getMin()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMin()-1) - fee)
+                    """
+                    self.pos = Position( self.candleHeap.getMin()-1, -amount/(self.candleHeap.getMin()-1))
+            elif self.pos.getAmount() < 0 and change > 0:
+                #else if a new high is set, close shorts and open a long
+                if max > self.candleHeap.getMax():
+                    self.totalTraded += amount
+                    self.amount += self.pos.getProfit(self.candleHeap.getMax()+1) - fee
+
+                    """print "\nClosed a short position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMax()-1)
+                    print "Opened up a long position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMax()-1), self.candleHeap.getMax()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMax()-1) - fee)
+                    """
+                    self.pos = Position(self.candleHeap.getMax()+1, amount/(self.candleHeap.getMax()+1))
+
+        self.candleHeap.add(min, max)
+
+    def combinedStratReversed(self, min, max):
+        amount = 10000
+        fee = 0.0015*amount
+
+        change = self.ema1 - self.ema2
+
+        if self.candleHeap.getNum() == self.candleHeap.numCandles:
+
+            #if positive = long position
+            if self.pos.getAmount() < 0 and change > 0:
+                #if a new low is set from last four candles, close long and start a short
+                if min < self.candleHeap.getMin():
+                    self.amount += self.pos.getProfit(self.candleHeap.getMin()-1) - fee
+                    self.totalTraded += amount
+
+                    """print "\nClosed a long position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMin()-1)
+                    print "Opened up a short position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMin()-1), self.candleHeap.getMin()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMin()-1) - fee)
+                    """
+                    self.pos = Position( self.candleHeap.getMin()-1, amount/(self.candleHeap.getMin()-1))
+            elif self.pos.getAmount() > 0 and change < 0:
+                #else if a new high is set, close shorts and open a long
+                if max > self.candleHeap.getMax():
+                    self.totalTraded += amount
+                    self.amount += self.pos.getProfit(self.candleHeap.getMax()+1) - fee
+
+                    """print "\nClosed a short position of %.2f units at $%.2f " % (self.pos.getAmount(), self.candleHeap.getMax()-1)
+                    print "Opened up a long position of %.2f units at $%.2f" % (-amount/(self.candleHeap.getMax()-1), self.candleHeap.getMax()-1)
+                    print "Profit for last trade: %.2f" % (self.pos.getProfit(self.candleHeap.getMax()-1) - fee)
+                    """
+                    self.pos = Position(self.candleHeap.getMax()+1, -amount/(self.candleHeap.getMax()+1))
+
+        self.candleHeap.add(min, max)
+
+
+
+    def calcEMA(self, close):
+        self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
+        self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
+
     def crossingEMAStrat(self, close):
         #set to either self.amount for compounded or a flat number
         tradingAmount = 10000
 
-        self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
-        self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
+        #+ve means faster is above the slower
         change = self.ema1 - self.ema2
         delta = 0.004*close  #how far the emas need to be after crossing before chaging position
                     #can be a flat value or a % - 50 flat works well for btc
@@ -205,7 +310,11 @@ class Tbot:
         if self.first == 0:
             self.first = time
 
-        self.crossingEMAStrat(close)
+        self.calcEMA(close)
+
+        #self.crossingEMAStrat(close)
+        self.fourCandleStratReversed(min, max)
+        #self.combinedStratReversed(min,max)
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

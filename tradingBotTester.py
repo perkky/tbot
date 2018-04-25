@@ -312,9 +312,10 @@ class Tbot:
 
         self.calcEMA(close)
 
-        #self.crossingEMAStrat(close)
-        self.fourCandleStratReversed(min, max)
+        self.crossingEMAStrat(close)
+        #self.fourCandleStratReversed(min, max)
         #self.combinedStratReversed(min,max)
+        #self.combinedStrat(min, max)
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

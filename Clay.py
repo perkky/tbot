@@ -2,6 +2,9 @@
 #Purpose : Contains the Clay bot which trades any coin using a crossing ema strategy
 
 from datetime import datetime
+import FinexAPI
+import json
+
 
 def makeJSONReadable(result):
     newResult = ""
@@ -20,8 +23,8 @@ def makeJSONReadable(result):
 class Clay:
     #initalise variables
     def __init__(self, tradeableAmount, coinCode, timeFrame, ema1, ema2):
-        self.tradeableAmount = tradingAmount        #The amount in $ you want the bot to trade with
-        self.coinCode =                             #The code of the coin being traded eg tBTCUSD etc
+        self.tradeableAmount = tradeableAmount      #The amount in $ you want the bot to trade with
+        self.coinCode = coinCode                    #The code of the coin being traded eg BTCUSD etc
         self.timeFrame = timeFrame                  #the timeframe eg 1h, 15m etc
         self.emaNum1 = ema1                         #1st ema days
         self.emaNum2= ema2                          #2nd ema days
@@ -30,6 +33,8 @@ class Clay:
         self.numCandles = 0                         #num of candles that have been loaded in
         self.positionType = "None"                  #The position type - Long, Short, None
         self.f = open("ClayLog.txt", 'a')
+        self.writeToLog("Starting bot...")
+        self.closeAllPositions()
 
     def writeToLog(self, string):
         self.f.write(str(datetime.now())+": " +str(string)+"\n")
@@ -44,7 +49,12 @@ class Clay:
 
         for pos in openPositions:
             id = json.loads(makeJSONReadable(str(pos)))['id']
-            self.writeToLog(FinexAPI.close_position(result['id']))
+            self.writeToLog(FinexAPI.close_position(id))
+
+    def openPositionMarket(self, type, price):
+        amount = price/self.tradingAmount*0.995  #<--- gives a 0.5% buffer in case of price difference
+
+        self.writeToLog(FinexAPI.place_order(str(amount), "500", type, "market", symbol = self.coinCode))
 
     #This function calculates the ema
     #continually feed close values into this to catch up to current values
@@ -67,24 +77,20 @@ class Clay:
             #If you are currently in a short position and the ema's have now crossed,
             #close your position and open a long position
             if self.positionType == "Short" and diff >= delta:
-
+                self.closeAllPositions()
+                self.openPositionMarket("buy", close)
 
                 self.positionType = "Long"
 
             #If you are currently in a long position and the ema's have now crossed,
             #close your position and open a short position
             elif self.positionType == "Long" and diff <= -delta:
+                self.closeAllPositions()
+                self.openPositionMarket("sell", close)
 
-                #closes the position, adds the profit to the amount and then opens up an opposite position
-                self.amount += self.pos.getProfit(close) - fees
-                self.totalTraded += tradingAmount
-                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
                 self.positionType = "Short"
-
-
 
 
     def update(self, time, open, close, min, max):
         self.calcEMA(close)
-
         self.crossingEMAStrat(close)

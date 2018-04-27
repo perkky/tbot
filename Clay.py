@@ -44,6 +44,7 @@ class Clay:
     #this function will close all positions that are currently active on bitfinex
     def closeAllPositions(self):
         #Get current open positions
+        self.writeToLog("Closing all positions...")
         openPositions = FinexAPI.active_positions()
         self.writeToLog(openPositions)
 
@@ -51,10 +52,13 @@ class Clay:
             id = json.loads(makeJSONReadable(str(pos)))['id']
             self.writeToLog(FinexAPI.close_position(id))
 
+        self.writeToLog("All positions closed.")
+
     def openPositionMarket(self, type, price):
         amount = price/self.tradingAmount*0.995  #<--- gives a 0.5% buffer in case of price difference
 
         self.writeToLog(FinexAPI.place_order(str(amount), "500", type, "market", symbol = self.coinCode))
+        self.writeToLog("Opened position of " + str(amount) + " at approx " + str(price))
 
     #This function calculates the ema
     #continually feed close values into this to catch up to current values
@@ -91,6 +95,6 @@ class Clay:
                 self.positionType = "Short"
 
 
-    def update(self, time, open, close, min, max):
+    def update(self, close,):
         self.calcEMA(close)
         self.crossingEMAStrat(close)

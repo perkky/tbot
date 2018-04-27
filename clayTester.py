@@ -26,18 +26,18 @@ except urllib2.HTTPError as err:
 
 #decide which way the emas are oriented
 if (clay.ema1 - clay.ema2) > 0:
-    clay.positionType = "Buy"
+    clay.positionType = "Long"
     inp = raw_input("Do you want to continue from long pos? (y/n)")
     if inp == "n":
-        clay.positionType = "Sell"
+        clay.positionType = "Short"
         clay.writeToLog("Resuming from short position")
     else:
         clay.writeToLog("Resuming from long position")
 else:
-    clay.positionType = "Sell"
+    clay.positionType = "Short"
     inp = input("Do you want to continue from short pos? (y/n)")
     if inp == "n":
-        clay.positionType = "Buy"
+        clay.positionType = "Long"
         clay.writeToLog("Resuming from long position")
     else:
         clay.writeToLog("Resuming from short position")

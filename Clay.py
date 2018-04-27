@@ -55,7 +55,7 @@ class Clay:
         self.writeToLog("All positions closed.")
 
     def openPositionMarket(self, type, price):
-        amount = price/self.tradeableAmount*0.995  #<--- gives a 0.5% buffer in case of price difference
+        amount = (self.tradeableAmount/price)*0.995  #<--- gives a 0.5% buffer in case of price difference
 
         self.writeToLog(FinexAPI.place_order(str(amount), "500", type, "market", symbol = self.coinCode))
         self.writeToLog("Opened position of " + str(amount) + " at approx " + str(price))

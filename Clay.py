@@ -34,12 +34,24 @@ class Clay:
         self.positionType = "None"                  #The position type - Long, Short, None
         self.f = open("ClayLog.txt", 'a')
         self.writeToLog("Starting bot...")
-        self.closeAllPositions()
+        self.getPosition()
 
     def writeToLog(self, string):
         self.f.write(str(datetime.now())+": " +str(string)+"\n")
         self.f.close()
         self.f = open("ClayLog.txt", 'a')
+
+    #this function gets the current position and sets in
+    def getPosition(self):
+        try:
+            pos = makeJSONReadable(FinexAPI.active_positions())
+            self.writeToLog(pos)
+
+            if float(pos['amount']) > 0.0000001):
+                self.positionType = "Long"
+            elif float(pos['amount']) < -0.0000001):
+                self.positionType = "Short"
+        except:
 
     #this function will close all positions that are currently active on bitfinex
     def closeAllPositions(self):

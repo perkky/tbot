@@ -25,22 +25,23 @@ except urllib2.HTTPError as err:
     clay.writeToLog("HTTP Error: Error with reading initial candles")
 
 #decide which way the emas are oriented
-if (clay.ema1 - clay.ema2) > 0:
-    clay.positionType = "Long"
-    inp = raw_input("Do you want to continue from long pos? (y/n)")
-    if inp == "n":
-        clay.positionType = "Short"
-        clay.writeToLog("Resuming from short position")
-    else:
-        clay.writeToLog("Resuming from long position")
-else:
-    clay.positionType = "Short"
-    inp = input("Do you want to continue from short pos? (y/n)")
-    if inp == "n":
+if clay.positionType == "None":
+    if (clay.ema1 - clay.ema2) > 0:
         clay.positionType = "Long"
-        clay.writeToLog("Resuming from long position")
+        inp = raw_input("Do you want to continue from long pos? (y/n)")
+        if inp == "n":
+            clay.positionType = "Short"
+            clay.writeToLog("Resuming from short position")
+        else:
+            clay.writeToLog("Resuming from long position")
     else:
-        clay.writeToLog("Resuming from short position")
+        clay.positionType = "Short"
+        inp = input("Do you want to continue from short pos? (y/n)")
+        if inp == "n":
+            clay.positionType = "Long"
+            clay.writeToLog("Resuming from long position")
+        else:
+            clay.writeToLog("Resuming from short position")
 
 #run the while loop
 url = 'https://api.bitfinex.com/v2/candles/trade:{x}:{y}/hist?limit=2'.format(x="1h", y="tETHUSD",)

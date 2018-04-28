@@ -84,8 +84,8 @@ def testRandomRange(fileLocation, numTimes, upper, ema1=8, ema2=21):
 #main loop
 
 
-testData('Data/BTC/1hr/1000 22-4.csv', 7, 20)
-#testRandomRange('Data/BTC/1hr/2018-2014.csv', 100, 30600, 7, 20)
+testData('Data/BTC/1hr/2018-2014.csv', 7, 20)
+testRandomRange('Data/BTC/1hr/2018-2014.csv', 1000, 30600, 7, 20)
 
 
 

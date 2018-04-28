@@ -74,7 +74,7 @@ class Tbot:
         self.elapsedTime = 0                        #time minutes of last candle - first candle
         self.totalCandles = 0                       #total amount of candles
         self.marginCalled = False                   #flag to see if you were margin called
-
+        self.lastTrade = "None"                     #the last trade - None, Long, Short
 
         self.ema12 = 0                               #2nd 1st ema
         self.ema22 = 0                               #2nd 2nd ema
@@ -250,36 +250,46 @@ class Tbot:
         else:
             self.numCandles = self.numCandles + 1
 
-    #Similar to the crossing ema strat however you only hold the position if its x% above the other ema line
-    def noRegionStrat(self, close):
+    #Similar to the crossing ema strat however will always close the position at x% profit
+    def takeProfitStrat(self, close):
         #set to either self.amount for compounded or a flat number
         tradingAmount = 10000
 
         #+ve means faster is above the slower
         change = self.ema1 - self.ema2
-        delta = 0.0044*close  #how far the emas need to be after crossing before chaging position
+        delta = 0.004*close  #how far the emas need to be after crossing before chaging position
                     #can be a flat value or a % - 50 flat works well for btc
         fees = 0.002*tradingAmount#*0
         #makes sure sufficient data has been provided to allow for proper ema base calculation
         if self.numCandles > 100:
             diff = self.ema1 - self.ema2 #faster one take slower one - +ve is bullish, -ve is bearish
 
-            if (not self.pos.getAmount() == 0) and change < delta and change > -delta:
+            if change >= delta:
                 #closes the position, adds the profit to the amount and then opens up an opposite position
-                self.amount += self.pos.getProfit(close) - fees
-                self.totalTraded += tradingAmount
-
-                self.pos.amount = 0
-
-            if self.pos.getAmount() == 0 and change >= delta:
-                self.pos = Position(close, tradingAmount/(close))
-
-            elif self.pos.getAmount() == 0 and change <= -delta:
-                self.pos = Position(close, -tradingAmount/(close))
+                if self.pos.getAmount() < 0:
+                    self.amount += self.pos.getProfit(close) - fees
+                    self.totalTraded += tradingAmount
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                if self.pos.getAmount() <= 0:
+                    self.pos = Position(close, tradingAmount/(close))
+                    self.lastTrade = "Long"
+            elif change <= -delta:
+                #closes the position, adds the profit to the amount and then opens up an opposite position
+                if self.pos.getAmount() > 0:
+                    self.amount += self.pos.getProfit(close) - fees
+                    self.totalTraded += tradingAmount
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                if self.pos.getAmount() >= 0:
+                    self.pos = Position(close, -tradingAmount/(close))
+                    self.lastTrade = "Short"
 
             if self.pos.getProfit(close) < -1500:
                 print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
                 self.marginCalled = True
+            elif self.pos.getProfit(close)*self.pos.getProfit(close) > 500*500:
+                self.amount += self.pos.getProfit(close) - fees
+                self.totalTraded += tradingAmount
+                self.pos.amount = 0
 
         else:
             self.numCandles = self.numCandles + 1
@@ -344,7 +354,8 @@ class Tbot:
 
         self.calcEMA(close)
 
-        self.noRegionStrat(close)
+        self.takeProfitStrat(close)
+        #self.crossingEMAStrat(close)
         #self.fourCandleStratReversed(min, max)
         #self.combinedStratReversed(min,max)
         #self.combinedStrat(min, max)

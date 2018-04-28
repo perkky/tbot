@@ -43,17 +43,16 @@ class Clay:
 
     #this function gets the current position and sets in
     def getPosition(self):
-        try:
-            pos = makeJSONReadable(FinexAPI.active_positions())
-            self.writeToLog(pos)
-            pos = json.loads(pos)
 
-            if float(pos['amount']) > 0.0000001:
-                self.positionType = "Long"
-            elif float(pos['amount']) < -0.0000001:
-                self.positionType = "Short"
-        except:
-            None
+        pos = makeJSONReadable(FinexAPI.active_positions())
+        self.writeToLog(pos)
+        pos = json.loads(pos)
+        print pos['amount']
+        if float(pos['amount']) > 0.0000001:
+            self.positionType = "Long"
+        elif float(pos['amount']) < -0.0000001:
+            self.positionType = "Short"
+
 
     #this function will close all positions that are currently active on bitfinex
     def closeAllPositions(self):

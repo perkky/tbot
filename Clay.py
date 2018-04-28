@@ -46,6 +46,7 @@ class Clay:
         try:
             pos = makeJSONReadable(FinexAPI.active_positions())
             self.writeToLog(pos)
+            pos = json.loads(pos)
 
             if float(pos['amount']) > 0.0000001:
                 self.positionType = "Long"

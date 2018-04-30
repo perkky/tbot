@@ -225,7 +225,7 @@ class Tbot:
         change = self.ema1 - self.ema2
         delta = 0.004*close  #how far the emas need to be after crossing before chaging position
                     #can be a flat value or a % - 50 flat works well for btc
-        fees = 0.002*tradingAmount#*0
+        fees = 0.004*tradingAmount#*0
         #makes sure sufficient data has been provided to allow for proper ema base calculation
         if self.numCandles > 100:
             diff = self.ema1 - self.ema2 #faster one take slower one - +ve is bullish, -ve is bearish
@@ -247,8 +247,6 @@ class Tbot:
                 print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
                 self.marginCalled = True
 
-        else:
-            self.numCandles = self.numCandles + 1
 
     #Similar to the crossing ema strat however will always close the position at x% profit
     def takeProfitStrat(self, close):
@@ -291,8 +289,6 @@ class Tbot:
                 self.totalTraded += tradingAmount
                 self.pos.amount = 0
 
-        else:
-            self.numCandles = self.numCandles + 1
 
     #******************Depreciated*********************
     #similar to the crossing ema strat, except it will only trade with the trend
@@ -354,11 +350,14 @@ class Tbot:
 
         self.calcEMA(close)
 
-        self.takeProfitStrat(close)
-        #self.crossingEMAStrat(close)
+        #self.takeProfitStrat(close)
+        self.crossingEMAStrat(close)
         #self.fourCandleStratReversed(min, max)
         #self.combinedStratReversed(min,max)
         #self.combinedStrat(min, max)
+
+        if self.numCandles < 250:
+            self.numCandles = self.numCandles + 1
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

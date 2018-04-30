@@ -76,6 +76,11 @@ class Tbot:
         self.marginCalled = False                   #flag to see if you were margin called
         self.lastTrade = "None"                     #the last trade - None, Long, Short
 
+        #RSI
+        self.rsi = 0
+        self.avgGain = 0
+        self.avgLoss = 0
+
         self.ema12 = 0                               #2nd 1st ema
         self.ema22 = 0                               #2nd 2nd ema
 
@@ -217,6 +222,29 @@ class Tbot:
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
 
+    def calcRSI(self, open, close):
+
+        if self.numCandles < 14:
+            if open > close:
+                self.avgGain += 0
+                self.avgLoss += open-close
+            else:
+                self.avgGain += close-open
+                self.avgLoss += 0
+        else:
+            if open > close:
+                self.avgGain = (self.avgGain*13 +0)/14
+                self.avgLoss = (self.avgLoss*13 +open-close)/14
+            else:
+                self.avgGain = (self.avgGain*13 +close-open)/14
+                self.avgLoss = (self.avgLoss*13 +0)/14
+
+            self.rsi = 100 - 100/(1+self.avgGain/self.avgLoss)
+
+        if self.numCandles == 13:
+            self.avgGain /= 14
+            self.avgLoss /= 14
+
     def crossingEMAStrat(self, close):
         #set to either self.amount for compounded or a flat number
         tradingAmount = 10000
@@ -349,6 +377,7 @@ class Tbot:
             self.first = time
 
         self.calcEMA(close)
+        self.calcRSI(open, close)
 
         #self.takeProfitStrat(close)
         self.crossingEMAStrat(close)
@@ -358,6 +387,8 @@ class Tbot:
 
         if self.numCandles < 250:
             self.numCandles = self.numCandles + 1
+        else:
+            print str(self.rsi)
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

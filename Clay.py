@@ -81,8 +81,6 @@ class Clay:
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
 
-        if self.numCandles < 100:
-            self.numCandles += 1
 
     def crossingEMAStrat(self, close):
         if self.numCandles < 100:
@@ -113,3 +111,6 @@ class Clay:
     def update(self, close,):
         self.calcEMA(close)
         self.crossingEMAStrat(close)
+
+        if self.numCandles < 100:
+            self.numCandles += 1

@@ -5,7 +5,6 @@ from datetime import datetime
 import FinexAPI
 import json
 
-
 def makeJSONReadable(result):
     newResult = ""
     i = 0

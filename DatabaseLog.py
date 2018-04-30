@@ -1,6 +1,6 @@
 
 # Start of Function ============================================================
-def Write_ClayLog( Dateofposition, OpeningPosition, EMA1, EMA2 ):
+def write_ClayLog( Dateofposition, OpeningPosition, EMA1, EMA2 ):
     #    Setup these fields for table insert
     #    Dateofposition = '2018-04-10 08:09:10'
     #    closingPosition = 662.36
@@ -65,16 +65,3 @@ def Write_ClayLog( Dateofposition, OpeningPosition, EMA1, EMA2 ):
         db.close()
         return WriteStatus, ErrorDesc;
 # END OF FUNCTION =============================================================
-
-# Call it
-Dateofposition = '2018-04-20 08:09:11.123457' #YYYY-MM-DD HH:MM:SS.123456
-ClosingPosition = 662.36
-EMA1 = 657.17
-EMA2 = 649.61
-WriteStatus = '===='
-ErrorDesc = '===='
-
-WriteStatus, ErrorDesc = Write_ClayLog( Dateofposition, ClosingPosition, EMA1, EMA2 )
-print("=======================================================================")
-print("WriteStatus = "+WriteStatus+" Reason:"+ErrorDesc)
-print("=======================================================================")

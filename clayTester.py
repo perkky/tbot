@@ -3,6 +3,7 @@ from datetime import datetime
 import urllib2
 import re
 import time
+import DatabaseLog
 
 clay = Clay(500, "ethusd", "1h", 7, 20)
 
@@ -64,6 +65,8 @@ while True:
                 clay.update(float(data[1][2]))
 
                 clay.writeToLog(str(clay.ema1) + str(clay.ema2))
+                errcode, dec = DatabaseLog.write_ClayLog(datetime.now(), data[1][2], clay.ema1 , clay.ema2)
+                clay.writeToLog("Error code: " +str(errcode) + ", Description: " + str(dec))
                 break
             else:
                 time.sleep(5)

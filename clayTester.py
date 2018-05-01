@@ -5,7 +5,7 @@ import re
 import time
 import DatabaseLog
 
-clay = Clay(500, "ethusd", "1h", 7, 20)
+clay = Clay(300, "ethusd", "1h", 7, 20)
 
 #catch the bot up with the past 105 candles
 regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]

@@ -39,7 +39,7 @@ if clay.positionType == "None":
             clay.writeToLog("Resuming from long position")
     else:
         clay.positionType = "Short"
-        inp = input("Do you want to continue from short pos? (y/n)")
+        inp = raw_input("Do you want to continue from short pos? (y/n)")
         if inp == "n":
             clay.positionType = "Long"
             clay.writeToLog("Resuming from long position")

@@ -42,9 +42,9 @@ class Clay:
         self.ema1 = 0
         self.ema2 = 0
         self.numCandles = 0
+        self.positionType = "None"
         self.writeToLog("Restarting bot...")
         self.getPosition()
-
         self.catchUp()
 
     #catches the bot up with the last 500 candles
@@ -66,8 +66,8 @@ class Clay:
                             self.numCandles += 1
 
                 print "%.2f, %.2f" % (self.ema1, self.ema2)
-
                 break
+
             except urllib2.HTTPError as err:
                 self.writeToLog("HTTP Error: Error with reading initial candles")
                 time.sleep(5)

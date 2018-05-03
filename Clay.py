@@ -5,6 +5,9 @@ from datetime import datetime
 import FinexAPI
 import json
 import time
+import urllib2
+import re
+
 
 def makeJSONReadable(result):
     newResult = ""

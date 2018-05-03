@@ -54,7 +54,7 @@ while True:
                 time.sleep(5)
 
         except urllib2.HTTPError as err:
-            clay.writeToLog("HTTP Error: Error with reading initial candles")
+            clay.writeToLog("HTTP Error: Error with reading candles")
             time.sleep(5)
         except urllib2.URLError as err:
             clay.reset()

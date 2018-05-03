@@ -5,15 +5,15 @@ import csv
 import random
 import heapq
 
-def testData(fileLocation, ema1=8, ema2=21):
+def testData(fileLocation, ema1=8, ema2=21, ema3 = 21, ema4 = 55):
     # 14 and 24
     # 4 and 21
     # 13 and 21
     #8 and 21 is the main one
     #21 and 55
-    tbot = Tbot(4, ema1, ema2)
+    tbot = Tbot(4, ema1, ema2, ema3, ema4)
 
-    print "Initial amount: " + str(tbot.amount)
+    """print "Initial amount: " + str(tbot.amount)"""
 
     with open(fileLocation, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter='\n')
@@ -22,12 +22,13 @@ def testData(fileLocation, ema1=8, ema2=21):
             #print row[0].split(',')[3] + " " + row[0].split(',')[4]
             tbot.update(int(row[0].split(',')[0]), float(row[0].split(',')[1]), float(row[0].split(',')[2]), float(row[0].split(',')[4]), float(row[0].split(',')[3]))
 
-
+    """
     print "\nOriginal value:\t10000"
     print "Final value:\t\t%.2f" % tbot.amount
     print "Profit percentage:\t%.2f %%" % (100*tbot.amount/10000 - 100)
     print "Time elapsed:\t\t%d days, %.2f hours and %.2f minutes (%d candles)" % (int(tbot.elapsedTime/ 1440), int((tbot.elapsedTime % 1440)/ 60), (tbot.elapsedTime % 1440 % 60), tbot.totalCandles)
     print "Total volume traded:\t" + str(tbot.totalTraded)
+    """
 
     return (100*tbot.amount/10000 - 100)
 #Test numTimes random data sets from the file fileLocation
@@ -84,20 +85,24 @@ def testRandomRange(fileLocation, numTimes, upper, ema1=8, ema2=21):
 #main loop
 
 
-testData('Data/BTC/1hr/2018-2014.csv', 7, 20)
-testRandomRange('Data/BTC/1hr/2018-2014.csv', 1000, 30600, 7, 20)
+#testData('Data/BTC/1hr/2018-2014.csv', 8, 13)
+#testRandomRange('Data/BTC/1hr/2018-2014.csv', 100, 30600, 8, 13)
 
 
 
-"""
+
 highest = 0
 ema1 = 0
 ema2 = 0
-f = open("log 3hr.csv", 'a')
-for i in range(5, 55):
-    for j in range (i, 56):
-        sample = testData('Data/BTC/3hr/2018-2014.csv', ema1=i, ema2=j)
-        f.write(str(sample)+","+str(i)+","+str(j)+"\n ")
+ema3 = 0
+ema4 = 0
+f = open("log 1hr.csv", 'a')
+for i in range(5, 15):
+    for j in range (i, 30):
+        for k in range(j, 45):
+            for l in range(k, 55):
+                sample = testData('Data/BTC/3hr/2018-2014.csv', ema1=i, ema2=j, ema3=k, ema4=l)
+                f.write(str(sample)+","+str(i)+","+str(j)+","+str(k)+","+str(l)+"\n ")
 
 f.close()
-print "The highest was %.2f%% with and ema of %d and %d" % (highest, ema1, ema2)"""
+print "The highest was %.2f%% with and ema of %d and %d" % (highest, ema1, ema2)

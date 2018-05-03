@@ -59,7 +59,7 @@ class CandleHeap:
 
 class Tbot:
     #initalise variables
-    def __init__(self, num, ema1, ema2):
+    def __init__(self, num, ema1, ema2, ema3 = 21, ema4 = 55):
         self.candleHeap = CandleHeap(num)
         self.bos = ""                               #Buy or sell variable
         self.amount = 10000                         #Total ammount
@@ -67,8 +67,12 @@ class Tbot:
         self.totalTraded = 0                        #Total value traded
         self.emaNum1 = ema1                         #1st ema days
         self.emaNum2= ema2                          #2nd ema days
+        self.emaNum3 = ema3                         #3rd ema days
+        self.emaNum4 = ema4                         #4th ema days
         self.ema1 = 0                               #1st ema
         self.ema2 = 0                               #2nd ema
+        self.ema3 = 0                               #3rd ema
+        self.ema4 = 0                               #4th ema
         self.numCandles = 0                         #num candles that have been added - used for crossing ema
         self.first = 0                              #the first candles time
         self.elapsedTime = 0                        #time minutes of last candle - first candle
@@ -221,6 +225,8 @@ class Tbot:
     def calcEMA(self, close):
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
+        self.ema3 = (close-self.ema3)*2/(float(self.emaNum3)+1) + self.ema3
+        self.ema4 = (close-self.ema4)*2/(float(self.emaNum4)+1) + self.ema4
 
     def calcRSI(self, open, close):
 
@@ -275,6 +281,37 @@ class Tbot:
                 print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
                 self.marginCalled = True
 
+    def fourEMAStrat(self, close):
+        #set to either self.amount for compounded or a flat number
+        tradingAmount = 10000
+
+        #+ve means faster is above the slower
+        change1 = self.ema1 - self.ema2
+        change2 = self.ema2 - self.ema3
+        change3 = self.ema3 - self.ema4
+
+        delta = 0.002*close  #how far the emas need to be after crossing before chaging position
+                    #can be a flat value or a % - 50 flat works well for btc
+        fees = 0.004*tradingAmount#*0
+        #makes sure sufficient data has been provided to allow for proper ema base calculation
+        if self.numCandles > 200:
+
+            if self.pos.getAmount() < 0 and change1 >= delta and change2 >= delta and change3 >= delta:
+                #closes the position, adds the profit to the amount and then opens up an opposite position
+                self.amount += self.pos.getProfit(close) - fees
+                self.totalTraded += tradingAmount
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                self.pos = Position(close, tradingAmount/(close))
+            elif self.pos.getAmount() > 0 and change1 <= -delta and change2 <= -delta and change3 <= -delta:
+                #closes the position, adds the profit to the amount and then opens up an opposite position
+                self.amount += self.pos.getProfit(close) - fees
+                self.totalTraded += tradingAmount
+                #print "closed for " + str(self.pos.getProfit(close)) + " profit\nAmount: " + str(self.amount)
+                self.pos = Position(close, -tradingAmount/(close))
+
+            if self.pos.getProfit(close) < -1500:
+                print "You've been margin called! (%d lost)" % self.pos.getProfit(close)
+                self.marginCalled = True
 
     #Similar to the crossing ema strat however will always close the position at x% profit
     def takeProfitStrat(self, close):
@@ -316,7 +353,6 @@ class Tbot:
                 self.amount += self.pos.getProfit(close) - fees
                 self.totalTraded += tradingAmount
                 self.pos.amount = 0
-
 
     #******************Depreciated*********************
     #similar to the crossing ema strat, except it will only trade with the trend
@@ -380,15 +416,12 @@ class Tbot:
         self.calcRSI(open, close)
 
         #self.takeProfitStrat(close)
-        self.crossingEMAStrat(close)
-        #self.fourCandleStratReversed(min, max)
-        #self.combinedStratReversed(min,max)
-        #self.combinedStrat(min, max)
+        #self.crossingEMAStrat(close)
+        self.fourEMAStrat(close)
 
         if self.numCandles < 250:
             self.numCandles = self.numCandles + 1
-        else:
-            print str(self.rsi)
+
 
         self.elapsedTime = (time - self.first)/60000    #as it is in miliseconds
         self.totalCandles += 1

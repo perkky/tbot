@@ -36,6 +36,7 @@ class Clay:
         self.numCandles = 0                         #num of candles that have been loaded in
         self.positionType = "None"                  #The position type - Long, Short, None
         self.f = open("ClayLog.txt", 'a')
+        self.latestTime = 0
         self.writeToLog("Starting bot...")
         self.getPosition()
         self.catchUp()
@@ -46,6 +47,7 @@ class Clay:
         self.ema2 = 0
         self.numCandles = 0
         self.positionType = "None"
+        self.latestTime = 0
         self.writeToLog("Restarting bot...")
         self.getPosition()
         self.catchUp()
@@ -54,14 +56,13 @@ class Clay:
     def catchUp(self):
         regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]
         url = 'https://api.bitfinex.com/v2/candles/trade:{x}:{y}/hist?limit=500'.format(x="1h", y="tETHUSD",)
-        latestTime= 0
 
         while True:
             try:
                 response = urllib2.urlopen(url)
                 html = response.read()
                 data = [item.split(",") for item in regex.findall(html)]
-                latestTime = data[0][0]
+                self.latestTime = data[0][0]
 
                 for entry in reversed(data[1:]):
                         self.calcEMA(float(entry[2]))

@@ -28,6 +28,8 @@ if clay.positionType == "None":
 
 #run the while loop
 url = 'https://api.bitfinex.com/v2/candles/trade:{x}:{y}/hist?limit=2'.format(x="1h", y="tETHUSD",)
+regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]
+latestTime = clay.latestTime
 while True:
     #sleep two seconds to make sure you are into the next minute
     time.sleep(2)

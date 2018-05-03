@@ -60,4 +60,5 @@ while True:
             time.sleep(5)
         except urllib2.URLError as err:
             clay.reset()
+            latestTime = clay.latestTime
             break

@@ -7,26 +7,6 @@ import DatabaseLog
 
 clay = Clay(300, "ethusd", "1h", 7, 20)
 
-#catch the bot up with the past 105 candles
-regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]
-url = 'https://api.bitfinex.com/v2/candles/trade:{x}:{y}/hist?limit=500'.format(x="1h", y="tETHUSD",)
-latestTime= 0
-try:
-    response = urllib2.urlopen(url)
-    html = response.read()
-    data = [item.split(",") for item in regex.findall(html)]
-    latestTime = data[0][0]
-
-    for entry in reversed(data[1:]):
-            clay.calcEMA(float(entry[2]))
-            if clay.numCandles < 100:
-                clay.numCandles += 1
-
-    print "%.2f, %.2f" % (clay.ema1, clay.ema2)
-
-except urllib2.HTTPError as err:
-    clay.writeToLog("HTTP Error: Error with reading initial candles")
-
 #decide which way the emas are oriented
 if clay.positionType == "None":
     if (clay.ema1 - clay.ema2) > 0:
@@ -75,3 +55,6 @@ while True:
 
         except urllib2.HTTPError as err:
             clay.writeToLog("HTTP Error: Error with reading initial candles")
+        except urllib2.URLError as err:
+            clay.reset()
+            break

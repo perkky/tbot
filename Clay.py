@@ -4,6 +4,7 @@
 from datetime import datetime
 import FinexAPI
 import json
+import time
 
 def makeJSONReadable(result):
     newResult = ""
@@ -34,6 +35,46 @@ class Clay:
         self.f = open("ClayLog.txt", 'a')
         self.writeToLog("Starting bot...")
         self.getPosition()
+        self.catchUp()
+
+    #resets the bot completely cand catches it back up
+    def reset(self):
+        self.ema1 = 0
+        self.ema2 = 0
+        self.numCandles = 0
+        self.writeToLog("Restarting bot...")
+        self.getPosition()
+
+        self.catchUp()
+
+    #catches the bot up with the last 500 candles
+    def catchUp(self):
+        regex = re.compile(r"\[([0-9]+,(?:[0-9]+\.?[0-9]+,?){5})]") #Regex for [[MTS,OPEN,CLOSE,HIGH,LOW,VOLUME],...]
+        url = 'https://api.bitfinex.com/v2/candles/trade:{x}:{y}/hist?limit=500'.format(x="1h", y="tETHUSD",)
+        latestTime= 0
+
+        while True:
+            try:
+                response = urllib2.urlopen(url)
+                html = response.read()
+                data = [item.split(",") for item in regex.findall(html)]
+                latestTime = data[0][0]
+
+                for entry in reversed(data[1:]):
+                        self.calcEMA(float(entry[2]))
+                        if self.numCandles < 100:
+                            self.numCandles += 1
+
+                print "%.2f, %.2f" % (self.ema1, self.ema2)
+
+                break
+            except urllib2.HTTPError as err:
+                self.writeToLog("HTTP Error: Error with reading initial candles")
+                time.sleep(5)
+            except urllib2.URLError as err:
+                self.writeToLog("URL Error: Cant reach the url")
+                time.sleep(5)
+
 
     def writeToLog(self, string):
         self.f.write(str(datetime.now())+": " +str(string)+"\n")
@@ -79,7 +120,6 @@ class Clay:
     def calcEMA(self, close):
         self.ema1 = (close-self.ema1)*2/(float(self.emaNum1)+1) + self.ema1
         self.ema2 = (close-self.ema2)*2/(float(self.emaNum2)+1) + self.ema2
-
 
     def crossingEMAStrat(self, close):
         if self.numCandles < 100:
